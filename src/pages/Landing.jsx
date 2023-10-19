@@ -9,9 +9,13 @@ function Landing() {
       <Helmet>
         <title>GodSaengTodo -Landing</title>
       </Helmet>
-      <Link >
       
-      </Link>
+      <div className="bg-black">
+        안녕하세요
+        <Link >
+        
+        </Link>
+      </div>
     </>
   );
 }

@@ -3,24 +3,31 @@ import Landing from './pages/Landing.jsx'
 import SignIn from './pages/SignIn.jsx'
 import SignUp from './pages/SignUp.jsx'
 import Main from './pages/Main.jsx'
-
+import RootLayout from './pages/RootLayout.jsx';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Landing />
+    element: <RootLayout />,
+    children :[
+      {
+        path: '/',
+        element: <Landing />,
+      },
+      {
+        path: '/signin',
+        element: <SignIn />,
+      },
+      {
+        path: '/signup',
+        element: <SignUp />,
+      },
+      {
+        path: '/main',
+        element: <Main/>,
+      }
+    ]
   },
-  {
-    path: '/signin',
-    element: <SignIn />,
-  },
-  {
-    path: '/signup',
-    element: <SignUp />,
-  },
-  {
-    path: '/main',
-    element: <Main/>,
-  }
+ 
 
 ])
 
