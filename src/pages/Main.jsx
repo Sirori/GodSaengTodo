@@ -6,7 +6,7 @@ import ToDo from '../components/ToDo';
 
 function Main() {
   return (
-    <div className=''>
+    <div>
       <Helmet>
         <title>GodSaengTodo -Main</title>
       </Helmet>
