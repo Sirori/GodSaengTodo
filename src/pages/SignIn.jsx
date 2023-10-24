@@ -11,7 +11,7 @@ function SignIn() {
 				<h2 className="welcome w-full font-bold text-4xl text-center mb-[30%] font-baloo">
 					Welcome to GodSaeng !
 				</h2>
-				<div className="loginBox w-4/5 mx-auto flex flex-col text-center gap-12">
+				<div className="loginBox w-[85%] mx-auto flex flex-col text-center gap-12">
 					<h1 className="loginTitle font-semibold text-2xl">로그인</h1>
 					<div className="inputWrapper">
 						<form action="" className="flex flex-col gap-6">
@@ -27,7 +27,7 @@ function SignIn() {
 									placeholder="아이디를 입력해주세요"
 									minLength={6}
 									required
-									className="bg-gray-300 bg-opacity-50 rounded-full w-[70%] pl-3 py-2"
+									className="bg-gray-300 bg-opacity-50 rounded-full w-[70%] pl-5 py-2"
 								/>
 							</div>
 							<div className="pwInput flex flex-row justify-evenly items-center mb-[10%]">
@@ -41,7 +41,7 @@ function SignIn() {
 									placeholder="비밀번호를 입력해주세요"
 									minLength={8}
 									required
-									className="bg-gray-300 bg-opacity-50 rounded-full w-[70%] pl-3 py-2"
+									className="bg-gray-300 bg-opacity-50 rounded-full w-[70%] pl-5 py-2"
 								/>
 							</div>
 							<button
@@ -53,7 +53,7 @@ function SignIn() {
 						</form>
 					</div>
 					<p>
-						아이디가 없으신가요 ?{" "}
+						아이디가 없으신가요 ?
 						<Link to={`/signup`} className="text-blue-400">
 							회원가입
 						</Link>
