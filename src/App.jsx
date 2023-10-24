@@ -4,6 +4,8 @@ import router from "./routes.jsx";
 import { RouterProvider } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import "./index.css";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -11,6 +13,7 @@ function App() {
     <>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={true} />
           <AnimatePresence>
             <RouterProvider router={router} />
           </AnimatePresence>
