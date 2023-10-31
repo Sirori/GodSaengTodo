@@ -1,5 +1,4 @@
 import pb from "@/api/pocketbase";
-import Spinner from "./Spinner";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
@@ -8,7 +7,7 @@ async function callImgData(){
   return response;
 }
 
-function ImgComponent() {
+function useBackgroundImage() {
   const [bg, setBg] = useState(null);
   const { isLoading, data } = useQuery(
     {
@@ -36,26 +35,8 @@ function ImgComponent() {
     }
   }, [data]);
 
-  if(isLoading){
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Spinner size={200} />
-      </div>
-    );
-  }
-
   
-  return (
-    <div
-          style={{
-            backgroundImage: `url(${bg})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            height: "100vh",
-          }}
-     ></div>
-     
-   );
+  return {bg, isLoading};
 }
 
-export default ImgComponent;
+export default useBackgroundImage;
