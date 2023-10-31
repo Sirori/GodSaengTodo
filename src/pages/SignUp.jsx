@@ -146,6 +146,7 @@ function SignUp() {
 								minLength={8}
 								defaultValue={formState.password}
 								onChange={handleDebounceInput}
+								autoComplete="new-password"
 							/>
 							{validationErrors.password ? (
 								<span className="text-red-500 text-left text-sm mb-2">
@@ -162,6 +163,7 @@ function SignUp() {
 								minLength={8}
 								defaultValue={formState.passwordConfirm}
 								onChange={handleDebounceInput}
+								autoComplete="new-password"
 							/>
 							{validationErrors.passwordConfirm ? (
 								<span className="text-red-500 text-left text-sm mb-2">
