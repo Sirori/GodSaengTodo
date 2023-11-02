@@ -12,27 +12,8 @@ function Modal({ isModalOpen }) {
   const [editInput, setEditInput] = useState("");
   const [showEditFieldIndex, setShowEditFieldIndex] = useState(null);
 
-  const [imageSource, setImageSource] = useState(Down);
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
-
-  // const handleMouseDown = () => {
-  //   setIsPressed(true);
-  //   setImageSource(Click); // 클릭 이미지 소스로 변경
-  // };
-
-  // const handleMouseUp = () => {
-  //   setIsPressed(false);
-  //   setImageSource(Down); // 기본 이미지 소스로 변경
-  // };
-
-  // const handleMouseEnter = () => {
-  //   setIsHovered(true);
-  // };
-
-  // const handleMouseLeave = () => {
-  //   setIsHovered(false);
-  // };
 
   const handleMouseEnter = () => {
     if (!isPressed) {
