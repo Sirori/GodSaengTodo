@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { FormInput } from "../component/formInput/formInput";
+import { FormInput } from "../component/formInput/FormInput";
 import debounce from "@/utils/debounce";
 
 function SignUp() {
@@ -130,6 +130,7 @@ function SignUp() {
 								minLength={2}
 								defaultValue={formState.name}
 								onChange={handleDebounceInput}
+								autoComplete="name"
 							/>
 							{validationErrors.name ? (
 								<span className="text-red-500 text-left text-sm mb-2">
