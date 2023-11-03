@@ -22,7 +22,7 @@ function WeatherModal({ onClose }) {
     );
   }
   return (
-    <div className="bg-[#aaaaaa] text-white w-2/3 ml-4 p-4 rounded-2xl relative">
+    <div className="bg-[#aaaaaa] text-white w-2/3 ml-4 p-4 rounded-2xl absolute z-50">
       <button onClick={onClose} className="absolute right-[15px] top-2">x</button>
       <div className="flex">
         <div className="flex flex-col">

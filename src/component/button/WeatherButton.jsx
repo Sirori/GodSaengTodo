@@ -31,13 +31,13 @@ function WeatherButton() {
   }
   else if(!isLoading && data){
     return (
-      <>
+      <div className="relative">
         <button onClick={() => setIsModalOpen(true)} className="ml-4">
           <span>현재 {data.name}의 날씨 {Math.round(data.main.temp - 273.15)}° - {data.weather[0].main}</span>
           <img src={icon} alt="" className="inline"/>
         </button>
         {isModalOpen && <WeatherModal onClose={() => setIsModalOpen(false)} />}
-      </>
+      </div>
     )
   }
 
