@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Calendar from "react-calendar"
-import 'react-calendar/dist/Calender.css'
+// import 'react-calendar/dist/Calender.css'
 
 function Calender() {
 
