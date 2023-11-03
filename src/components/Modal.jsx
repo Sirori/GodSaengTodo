@@ -1,5 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import OutsideClickHandler from "react-outside-click-handler";
+import Down from "../assets/arrow/down.svg";
+import Click from "../assets/arrow/click.svg";
+import Focus from "../assets/arrow/focus.svg";
 
 function Modal({ isModalOpen }) {
   const [todos, setTodos] = useState([]);
@@ -8,6 +12,32 @@ function Modal({ isModalOpen }) {
   const [editInput, setEditInput] = useState("");
   const [showEditFieldIndex, setShowEditFieldIndex] = useState(null);
 
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+
+  const handleMouseEnter = () => {
+    if (!isPressed) {
+      setIsHovered(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isPressed) {
+      setIsHovered(false);
+    }
+  };
+
+  const handleMouseDown = () => {
+    setIsPressed(true);
+    setIsHovered(false); // 마우스를 꾹 눌렀을 때 호버 효과 해제
+  };
+
+  const handleMouseUp = () => {
+    setIsPressed(false);
+    if (isHovered) {
+      setIsHovered(true); // 마우스 업 후 다시 호버 상태로 변경
+    }
+  };
 
   const addTodo = (e) => {
     e.preventDefault();
@@ -59,8 +89,27 @@ function Modal({ isModalOpen }) {
           exit={{ opacity: 0 }}
           className="w-80"
         >
-          <div className="flex flex-col bg-gray-400 p-3 rounded-lg">
-            <h2 className="mb-3">할 일 목록</h2>
+          <div className="flex flex-col bg-gray-200 p-3 rounded-lg">
+            <div className="flex">
+              <span className="mb-3">할 일 목록</span>
+              <div
+                className={`ml-1 ${isPressed ? "pressed" : ""}`}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+              >
+                {isPressed ? (
+                  <img src={Click} alt="마우스를 눌렀을 때 보이는 체크 아이콘" />
+                ) : isHovered ? (
+                  <img src={Focus} alt="마우스를 올렸을 때 보이는 체크 아이콘" />
+                ) : (
+                  <img src={Down} alt="체크 아이콘"
+                  className="relative top-1 left-1" />
+                )}
+              </div>
+
+            </div>
 
             {/* To-Do List */}
             <ul className="relative">
@@ -70,24 +119,44 @@ function Modal({ isModalOpen }) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   key={index}
-                  className="flex flex-row items-center"
+                  className="flex items-start"
                 >
                   {/* Checkbox */}
                   <input
                     type="checkbox"
                     checked={todo.completed}
                     onChange={() => toggleComplete(index)}
-                    className="mr-1"
+                    className="mr-1 relative top-1"
                   />
 
                   {/* Todo Text */}
-                  {showOptionsIndex !== index && (
-                    <span className="w-full">{todo.text}</span>
-                  )}
 
-                 
-                  {showOptionsIndex === index && (
+                  {showEditFieldIndex !== index ? (
                     <span className="w-full">{todo.text}</span>
+                  ) : (
+                    <div className="w-full">
+                      <OutsideClickHandler
+                        onOutsideClick={() => {
+                          if (showEditFieldIndex !== null) {
+                            setShowEditFieldIndex(null);
+                          }
+                        }}
+                      >
+                        <input
+                          type="text"
+                          value={editInput}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => setEditInput(e.target.value)}
+                          className="w-full"
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter") {
+                              editTodo(index);
+                              setShowEditFieldIndex(null);
+                            }
+                          }}
+                        />
+                      </OutsideClickHandler>
+                    </div>
                   )}
 
                   {/* Options Button */}
@@ -97,23 +166,48 @@ function Modal({ isModalOpen }) {
                   >
                     ...
                   </button>
+                  <OutsideClickHandler
+                    onOutsideClick={() => {
+                      if (showOptionsIndex !== null) {
+                        setShowOptionsIndex(null);
+                      }
+                    }}
+                  >
+                    <AnimatePresence>
+                      {showOptionsIndex === index && (
+                        <motion.div className="bg-slate-300 flex flex-col w-20 absolute right-4 -translate-y-2">
+                          {/* Delete Button */}
+                          <button
+                            onClick={() => deleteTodo(index)}
+                            className="border border-b-black"
+                          >
+                            삭제
+                          </button>
 
-                  <AnimatePresence>
-                    {showOptionsIndex === index && (
-                      <motion.div className="bg-slate-200 flex flex-col w-20 absolute right-4">
-                        {/* Delete Button */}
-                        <button
-                          onClick={() => deleteTodo(index)}
-                          className="border border-b-black"
-                        >
-                          삭제
-                        </button>
-
-                        {/* Edit Button */}
-                        <button onClick={() => {setShowEditFieldIndex(index); setEditInput(todo.text);}}>수정</button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                          {/* Edit Button */}
+                          {showEditFieldIndex !== index ? (
+                            <button
+                              onClick={() => {
+                                setShowEditFieldIndex(index);
+                                setShowOptionsIndex(null); // Hide options after clicking edit
+                              }}
+                            >
+                              수정
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                editTodo(index);
+                                setShowEditFieldIndex(null);
+                              }}
+                            >
+                              적용
+                            </button>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </OutsideClickHandler>
                 </motion.li>
               ))}
             </ul>
