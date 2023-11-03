@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import useBackgroundImage from "@/hooks/useBackgroundImage";
 import Calender from "@/component/Calender";
 import ToDo from "@/components/ToDo";
+import WiseSaying from "@/components/WiseSaying";
 
 function Main() {
   const { bg, isLoading } = useBackgroundImage();
@@ -31,6 +32,7 @@ function Main() {
       >
         <WeatherButton />
         <ToDo />
+        <WiseSaying/>
       </div>
     </>
   );
