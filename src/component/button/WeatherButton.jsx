@@ -6,7 +6,7 @@ import WeatherModal from "../WeatherModal";
 function WeatherButton() {
   
   const [icon, setIcon] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Add this line
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {isLoading, data, isError} = useGetWeather();
 
   useEffect(() => {
