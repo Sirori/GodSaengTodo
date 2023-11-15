@@ -5,37 +5,40 @@ import useBackgroundImage from "@/hooks/useBackgroundImage";
 import Calender from "@/component/Calender";
 import ToDo from "@/components/ToDo";
 import WiseSaying from "@/components/WiseSaying";
+import LogoutButton from "@/component/button/LogoutButton";
 
 function Main() {
-  const { bg, isLoading } = useBackgroundImage();
+	const { bg, isLoading } = useBackgroundImage();
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Spinner size={200} />
-      </div>
-    );
-  }
-  return (
-    <>
-      <Helmet>
-        <title>GodSaengTodo -Main</title>
-      </Helmet>
+	if (isLoading) {
+		return (
+			<div className="flex h-screen items-center justify-center">
+				<Spinner size={200} />
+			</div>
+		);
+	}
+	return (
+		<>
+			<Helmet>
+				<title>GodSaengTodo -Main</title>
+			</Helmet>
 
-      <div
-        style={{
-          backgroundImage: `url(${bg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          height: "100vh",
-        }}
-      >
-        <WeatherButton />
-        <ToDo />
-        <WiseSaying/>
-      </div>
-    </>
-  );
+			<div
+				style={{
+					backgroundImage: `url(${bg})`,
+					backgroundSize: "cover",
+					backgroundPosition: "center",
+					height: "100vh",
+					position: "relative",
+				}}
+			>
+				<LogoutButton />
+				<WeatherButton />
+				<ToDo />
+				<WiseSaying />
+			</div>
+		</>
+	);
 }
 
 export default Main;
