@@ -5,7 +5,6 @@ import useBackgroundImage from "@/hooks/useBackgroundImage";
 import Calender from "@/component/Calender";
 import ToDo from "@/components/ToDo";
 import WiseSaying from "@/components/WiseSaying";
-import LogoutButton from "@/component/button/LogoutButton";
 
 function Main() {
 	const { bg, isLoading } = useBackgroundImage();
@@ -23,22 +22,20 @@ function Main() {
 				<title>GodSaengTodo -Main</title>
 			</Helmet>
 
-			<div
-				style={{
-					backgroundImage: `url(${bg})`,
-					backgroundSize: "cover",
-					backgroundPosition: "center",
-					height: "100vh",
-					position: "relative",
-				}}
-			>
-				<LogoutButton />
-				<WeatherButton />
-				<ToDo />
-				<WiseSaying />
-			</div>
-		</>
-	);
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: "100vh",
+        }}
+      >
+        <WeatherButton />
+        <ToDo />
+        <WiseSaying/>
+      </div>
+    </>
+  );
 }
 
 export default Main;
