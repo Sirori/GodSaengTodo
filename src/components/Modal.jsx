@@ -1,37 +1,121 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import OutsideClickHandler from "react-outside-click-handler";
-<<<<<<< HEAD
-import Down from "../assets/arrow/down.svg";
-import Click from "../assets/arrow/click.svg";
-import Focus from "../assets/arrow/focus.svg";
-import Memo from "../assets/memo.svg";
-=======
 import Memo from "../assets/memo.svg";
 import MemoModal from "./MemoModal";
->>>>>>> 6543661cf486f01fe5d9763d140f2857d978e6c8
+import useTodo from "@/store/todoStore";
+import useTodoMemo from "@/store/memoStore";
+import useStorage from "@/hooks/useStorage";
+import pb from "@/api/pocketbase";
+import useUser from "@/store/userStore";
 
 function Modal({ isModalOpen }) {
-  const [todos, setTodos] = useState([]);
-  const [input, setInput] = useState("");
-  const [showOptionsIndex, setShowOptionsIndex] = useState(null);
-  const [editInput, setEditInput] = useState("");
-  const [showEditFieldIndex, setShowEditFieldIndex] = useState(null);
-
-  const [isHovered, setIsHovered] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
+  const {
+    todos,
+    input,
+    showOptionsIndex,
+    showEditFieldIndex,
+    editInput,
+    todoCheck,
+    setTodos,
+    setInput,
+    setShowOptionsIndex,
+    setShowEditFieldIndex,
+    setEditInput,
+    setTodocheck,
+  } = useTodo();
 
   //메모 모달 다이얼로그 상태
-  const [isOpenMemo, setIsOpenMemo] = useState(false);
-  const [currentMemoIndex, setCurrentMemoIndex] = useState(null); // 현재 메모를 작성하고 있는 Todo 항목의 인덱스
+  const { isOpenMemo, currentMemoIndex, setIsOpenMemo, setCurrentMemoIndex } =
+    useTodoMemo();
 
-  // const toggleMemoModal = () => setIsOpenMemo(!isOpenMemo);
-  // const [memo, setMemo] = useState("");
+  //유저
+  const { userData, setUserData } = useUser();
+  // const [isOpenMemo, setIsOpenMemo] = useState(false);
+  // const [currentMemoIndex, setCurrentMemoIndex] = useState(null); // 현재 메모를 작성하고 있는 Todo 항목의 인덱스
 
+  const { storageData } = useStorage("pocketbase_auth");
+  console.log(storageData.model.id);
+
+  const userInitData = {
+    username: storageData.model.username,
+    email: storageData.model.email,
+    emailVisibility: true,
+    // "password": storageData.model,
+    // "passwordConfirm": "12345678",
+    name: storageData.model.name,
+    todo: [],
+    ledger: [],
+  };
+
+  //포켓베이스 데이터
+  const todoData = {
+    todo: "",
+    memo: "",
+    require: "",
+    userID: "",
+    check: false,
+  };
+
+  //포켓베이스 데이터 메소드
+  const handleTodoData = async (newTodo) => {
+    // e.preventDefault();
+
+    // PocketBase SDK 인증 요청
+    // try {
+    //   todoData.userID = storageData.model.id;
+    //   todoData.todo = todos.text;
+    //   todoData.check = todoCheck;
+
+    //   console.log(todoData);
+    //   await pb.collection("Todo").create(todoData);
+    //   // authSignUp(formData);
+    // } catch (error) {
+    //   console.log("오류", error.response);
+    // }
+    try {
+      todoData.userID = storageData.model.id;
+      todoData.todo = newTodo.text; // newTodo를 직접 사용
+      todoData.check = newTodo.completed; // newTodo를 직접 사용
+
+      const todoRes = await pb.collection("Todo").create(todoData);
+
+      // userData.username = storageData.model.username;
+      // userData.email = storageData.model.email;
+      // userData.name = storageData.model.name;
+      userData.todo.push(todoRes.id);
+
+      // setUserData((userData) => ({
+      //   ...userData,
+      //   todo: [...userData.todo, todoRes.id],
+      // }));
+
+      const updatedUserData = {
+        ...userData,
+        todo: [...userData.todo, todoRes.id],
+      };
+
+      setUserData(updatedUserData);
+
+      pb.collection("users").update(storageData.model.id, updatedUserData);
+
+      // setUserData(updatedUserData);
+
+      console.log(updatedUserData);
+      console.log(todoRes);
+
+      // return updatedUserData;
+
+      // await pb.collection("users").update(storageData.model.id, userData);
+    } catch (error) {
+      console.log("오류", error.response);
+    }
+  };
   //메모 메소드
   const toggleMemoModal = (index) => {
     setIsOpenMemo(!isOpenMemo);
     setCurrentMemoIndex(index);
+    console.log(currentMemoIndex);
   };
 
   const handleMemoSave = (memoText) => {
@@ -43,35 +127,19 @@ function Modal({ isModalOpen }) {
     setIsOpenMemo(false);
   };
 
-  const handleMouseEnter = () => {
-    if (!isPressed) {
-      setIsHovered(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!isPressed) {
-      setIsHovered(false);
-    }
-  };
-
-  const handleMouseDown = () => {
-    setIsPressed(true);
-    setIsHovered(false); // 마우스를 꾹 눌렀을 때 호버 효과 해제
-  };
-
-  const handleMouseUp = () => {
-    setIsPressed(false);
-    if (isHovered) {
-      setIsHovered(true); // 마우스 업 후 다시 호버 상태로 변경
-    }
-  };
-
-  const addTodo = (e) => {
+  const addTodo = async (e) => {
     e.preventDefault();
 
-    setTodos([...todos, { text: input, completed: false, memo: "" }]);
+    // setTodos([...todos, { text: input, completed: false, memo: "" }]);
+    // setInput("");
+
+    const newTodo = { text: input, completed: false, memo: "" };
+
+    setTodos([...todos, newTodo]);
     setInput("");
+
+    // addTodo가 실행되면 handleTodoData도 실행되도록 함
+    await handleTodoData(newTodo);
   };
 
   const toggleComplete = (index) => {
@@ -80,6 +148,10 @@ function Modal({ isModalOpen }) {
         i === index ? { ...todo, completed: !todo.completed } : todo
       )
     );
+    console.log(todoCheck);
+    console.log(todos);
+    setTodocheck(!todoCheck);
+    console.log(todoCheck);
   };
 
   const deleteTodo = (index) => {
@@ -108,6 +180,10 @@ function Modal({ isModalOpen }) {
     }
   };
 
+  useEffect(() => {
+    setUserData(userInitData);
+  }, []);
+
   return (
     <AnimatePresence>
       {isModalOpen && (
@@ -118,38 +194,7 @@ function Modal({ isModalOpen }) {
           className="w-80"
         >
           <div className="flex flex-col bg-gray-200 p-3 rounded-lg">
-            <div className="flex">
-              <span className="mb-3">할 일 목록</span>
-              <div
-                className={`ml-1 ${isPressed ? "pressed" : ""}`}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}
-<<<<<<< HEAD
-              >
-                {isPressed ? (
-                  <img
-                    src={Click}
-                    alt="마우스를 눌렀을 때 보이는 체크 아이콘"
-                  />
-                ) : isHovered ? (
-                  <img
-                    src={Focus}
-                    alt="마우스를 올렸을 때 보이는 체크 아이콘"
-                  />
-                ) : (
-                  <img
-                    src={Down}
-                    alt="체크 아이콘"
-                    className="relative top-1 left-1"
-                  />
-                )}
-              </div>
-=======
-              ></div>
->>>>>>> 6543661cf486f01fe5d9763d140f2857d978e6c8
-            </div>
+            <span className="mb-3">할 일 목록</span>
 
             {/* To-Do List */}
             <ul className="relative">
@@ -172,7 +217,13 @@ function Modal({ isModalOpen }) {
                   {/* Todo Text */}
 
                   {showEditFieldIndex !== index ? (
-                    <span className="w-full">{todo.text}</span>
+                    <span
+                      className={`w-full ${
+                        todo.completed ? "line-through" : ""
+                      }`}
+                    >
+                      {todo.text}
+                    </span>
                   ) : (
                     <div className="w-full">
                       <OutsideClickHandler
@@ -199,15 +250,6 @@ function Modal({ isModalOpen }) {
                     </div>
                   )}
 
-<<<<<<< HEAD
-                  {/* memo button */}
-                  <button className="mr-3">
-                    <img
-                      src={Memo}
-                      alt="메모 아이콘"
-                    />
-                  </button>
-=======
                   <div>
                     <button
                       className="mr-1"
@@ -216,25 +258,7 @@ function Modal({ isModalOpen }) {
                       <img src={Memo} alt="메모 이미지 아이콘" />
                     </button>
                   </div>
-                  {/* <div>
-                    <button className="mr-1" onClick={toggleMemoModal}>
-                      <img src={Memo} alt="메모 이미지 아이콘" />
-                    </button>
-                    {isOpenMemo && (
-                      <MemoModal
-                        // isOpenMemo={isOpenMemo}
-                        // closeMemoModal={toggleMemoModal}
-                        // memo={memo}
-                        // setMemo={setMemo}
-                        isOpenMemo={isOpenMemo}
-                        closeMemoModal={toggleMemoModal}
-                        memo={todos[currentMemoIndex]?.memo || ""}
-                        handleMemoSave={handleMemoSave}
-                      />
-                    )}
-                  </div> */}
 
->>>>>>> 6543661cf486f01fe5d9763d140f2857d978e6c8
                   {/* Options Button */}
                   <button
                     onClick={() => toggleOptionsForTodoItem(index)}

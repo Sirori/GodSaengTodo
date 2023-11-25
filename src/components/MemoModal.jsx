@@ -1,15 +1,13 @@
+import useMemo from "@/store/memoStore";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
 function MemoModal({ isOpenMemo, closeMemoModal, memo, handleMemoSave }) {
   const [localMemo, setLocalMemo] = useState(memo); // 로컬 상태를 추가합니다.
+  // const {localMemo,setLocalMemo}=useMemo()
 
-  // const handleSave = () => {
-  //   // console.log(memo); // 여기에 저장 로직을 구현할 수 있습니다.
-
-  //   closeMemoModal();
-  // };
-  // memo prop이 변경될 때마다 localMemo 상태를 업데이트합니다.
+ 
+  
   useEffect(() => {
     setLocalMemo(memo);
   }, [memo]);
