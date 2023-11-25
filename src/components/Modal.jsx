@@ -1,9 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import OutsideClickHandler from "react-outside-click-handler";
-import Down from "../assets/arrow/down.svg";
-import Click from "../assets/arrow/click.svg";
-import Focus from "../assets/arrow/focus.svg";
+import Memo from "../assets/memo.svg";
+import MemoModal from "./MemoModal";
 
 function Modal({ isModalOpen }) {
   const [todos, setTodos] = useState([]);
@@ -14,6 +13,28 @@ function Modal({ isModalOpen }) {
 
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+
+  //메모 모달 다이얼로그 상태
+  const [isOpenMemo, setIsOpenMemo] = useState(false);
+  const [currentMemoIndex, setCurrentMemoIndex] = useState(null); // 현재 메모를 작성하고 있는 Todo 항목의 인덱스
+
+  // const toggleMemoModal = () => setIsOpenMemo(!isOpenMemo);
+  // const [memo, setMemo] = useState("");
+
+  //메모 메소드
+  const toggleMemoModal = (index) => {
+    setIsOpenMemo(!isOpenMemo);
+    setCurrentMemoIndex(index);
+  };
+
+  const handleMemoSave = (memoText) => {
+    setTodos(
+      todos.map((todo, i) =>
+        i === currentMemoIndex ? { ...todo, memo: memoText } : todo
+      )
+    );
+    setIsOpenMemo(false);
+  };
 
   const handleMouseEnter = () => {
     if (!isPressed) {
@@ -42,7 +63,7 @@ function Modal({ isModalOpen }) {
   const addTodo = (e) => {
     e.preventDefault();
 
-    setTodos([...todos, { text: input, completed: false }]);
+    setTodos([...todos, { text: input, completed: false, memo: "" }]);
     setInput("");
   };
 
@@ -98,17 +119,7 @@ function Modal({ isModalOpen }) {
                 onMouseLeave={handleMouseLeave}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
-              >
-                {isPressed ? (
-                  <img src={Click} alt="마우스를 눌렀을 때 보이는 체크 아이콘" />
-                ) : isHovered ? (
-                  <img src={Focus} alt="마우스를 올렸을 때 보이는 체크 아이콘" />
-                ) : (
-                  <img src={Down} alt="체크 아이콘"
-                  className="relative top-1 left-1" />
-                )}
-              </div>
-
+              ></div>
             </div>
 
             {/* To-Do List */}
@@ -158,6 +169,32 @@ function Modal({ isModalOpen }) {
                       </OutsideClickHandler>
                     </div>
                   )}
+
+                  <div>
+                    <button
+                      className="mr-1"
+                      onClick={() => toggleMemoModal(index)}
+                    >
+                      <img src={Memo} alt="메모 이미지 아이콘" />
+                    </button>
+                  </div>
+                  {/* <div>
+                    <button className="mr-1" onClick={toggleMemoModal}>
+                      <img src={Memo} alt="메모 이미지 아이콘" />
+                    </button>
+                    {isOpenMemo && (
+                      <MemoModal
+                        // isOpenMemo={isOpenMemo}
+                        // closeMemoModal={toggleMemoModal}
+                        // memo={memo}
+                        // setMemo={setMemo}
+                        isOpenMemo={isOpenMemo}
+                        closeMemoModal={toggleMemoModal}
+                        memo={todos[currentMemoIndex]?.memo || ""}
+                        handleMemoSave={handleMemoSave}
+                      />
+                    )}
+                  </div> */}
 
                   {/* Options Button */}
                   <button
@@ -212,6 +249,16 @@ function Modal({ isModalOpen }) {
               ))}
             </ul>
 
+            {/* 메모 아이콘 눌렀을 때 */}
+            {isOpenMemo && (
+              <MemoModal
+                isOpenMemo={isOpenMemo}
+                closeMemoModal={toggleMemoModal}
+                memo={todos[currentMemoIndex]?.memo || ""}
+                handleMemoSave={handleMemoSave}
+              />
+            )}
+
             {/* Add To-Do Form */}
             <form onSubmit={addTodo} className="mt-3">
               <input
@@ -219,7 +266,7 @@ function Modal({ isModalOpen }) {
                 value={input}
                 placeholder="New Todo"
                 onChange={(e) => setInput(e.target.value)}
-                className="block w-full overflow-hidden"
+                className="block w-full overflow-hidden pl-2"
               />
               <button type="submit" className="sr-only">
                 추가하기
