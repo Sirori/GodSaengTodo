@@ -4,6 +4,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import Down from "../assets/arrow/down.svg";
 import Click from "../assets/arrow/click.svg";
 import Focus from "../assets/arrow/focus.svg";
+import Memo from "../assets/memo.svg";
 
 function Modal({ isModalOpen }) {
   const [todos, setTodos] = useState([]);
@@ -100,15 +101,23 @@ function Modal({ isModalOpen }) {
                 onMouseUp={handleMouseUp}
               >
                 {isPressed ? (
-                  <img src={Click} alt="마우스를 눌렀을 때 보이는 체크 아이콘" />
+                  <img
+                    src={Click}
+                    alt="마우스를 눌렀을 때 보이는 체크 아이콘"
+                  />
                 ) : isHovered ? (
-                  <img src={Focus} alt="마우스를 올렸을 때 보이는 체크 아이콘" />
+                  <img
+                    src={Focus}
+                    alt="마우스를 올렸을 때 보이는 체크 아이콘"
+                  />
                 ) : (
-                  <img src={Down} alt="체크 아이콘"
-                  className="relative top-1 left-1" />
+                  <img
+                    src={Down}
+                    alt="체크 아이콘"
+                    className="relative top-1 left-1"
+                  />
                 )}
               </div>
-
             </div>
 
             {/* To-Do List */}
@@ -159,6 +168,13 @@ function Modal({ isModalOpen }) {
                     </div>
                   )}
 
+                  {/* memo button */}
+                  <button className="mr-3">
+                    <img
+                      src={Memo}
+                      alt="메모 아이콘"
+                    />
+                  </button>
                   {/* Options Button */}
                   <button
                     onClick={() => toggleOptionsForTodoItem(index)}
