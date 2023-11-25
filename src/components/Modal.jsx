@@ -1,10 +1,15 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import OutsideClickHandler from "react-outside-click-handler";
+<<<<<<< HEAD
 import Down from "../assets/arrow/down.svg";
 import Click from "../assets/arrow/click.svg";
 import Focus from "../assets/arrow/focus.svg";
 import Memo from "../assets/memo.svg";
+=======
+import Memo from "../assets/memo.svg";
+import MemoModal from "./MemoModal";
+>>>>>>> 6543661cf486f01fe5d9763d140f2857d978e6c8
 
 function Modal({ isModalOpen }) {
   const [todos, setTodos] = useState([]);
@@ -15,6 +20,28 @@ function Modal({ isModalOpen }) {
 
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+
+  //메모 모달 다이얼로그 상태
+  const [isOpenMemo, setIsOpenMemo] = useState(false);
+  const [currentMemoIndex, setCurrentMemoIndex] = useState(null); // 현재 메모를 작성하고 있는 Todo 항목의 인덱스
+
+  // const toggleMemoModal = () => setIsOpenMemo(!isOpenMemo);
+  // const [memo, setMemo] = useState("");
+
+  //메모 메소드
+  const toggleMemoModal = (index) => {
+    setIsOpenMemo(!isOpenMemo);
+    setCurrentMemoIndex(index);
+  };
+
+  const handleMemoSave = (memoText) => {
+    setTodos(
+      todos.map((todo, i) =>
+        i === currentMemoIndex ? { ...todo, memo: memoText } : todo
+      )
+    );
+    setIsOpenMemo(false);
+  };
 
   const handleMouseEnter = () => {
     if (!isPressed) {
@@ -43,7 +70,7 @@ function Modal({ isModalOpen }) {
   const addTodo = (e) => {
     e.preventDefault();
 
-    setTodos([...todos, { text: input, completed: false }]);
+    setTodos([...todos, { text: input, completed: false, memo: "" }]);
     setInput("");
   };
 
@@ -99,6 +126,7 @@ function Modal({ isModalOpen }) {
                 onMouseLeave={handleMouseLeave}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
+<<<<<<< HEAD
               >
                 {isPressed ? (
                   <img
@@ -118,6 +146,9 @@ function Modal({ isModalOpen }) {
                   />
                 )}
               </div>
+=======
+              ></div>
+>>>>>>> 6543661cf486f01fe5d9763d140f2857d978e6c8
             </div>
 
             {/* To-Do List */}
@@ -168,6 +199,7 @@ function Modal({ isModalOpen }) {
                     </div>
                   )}
 
+<<<<<<< HEAD
                   {/* memo button */}
                   <button className="mr-3">
                     <img
@@ -175,6 +207,34 @@ function Modal({ isModalOpen }) {
                       alt="메모 아이콘"
                     />
                   </button>
+=======
+                  <div>
+                    <button
+                      className="mr-1"
+                      onClick={() => toggleMemoModal(index)}
+                    >
+                      <img src={Memo} alt="메모 이미지 아이콘" />
+                    </button>
+                  </div>
+                  {/* <div>
+                    <button className="mr-1" onClick={toggleMemoModal}>
+                      <img src={Memo} alt="메모 이미지 아이콘" />
+                    </button>
+                    {isOpenMemo && (
+                      <MemoModal
+                        // isOpenMemo={isOpenMemo}
+                        // closeMemoModal={toggleMemoModal}
+                        // memo={memo}
+                        // setMemo={setMemo}
+                        isOpenMemo={isOpenMemo}
+                        closeMemoModal={toggleMemoModal}
+                        memo={todos[currentMemoIndex]?.memo || ""}
+                        handleMemoSave={handleMemoSave}
+                      />
+                    )}
+                  </div> */}
+
+>>>>>>> 6543661cf486f01fe5d9763d140f2857d978e6c8
                   {/* Options Button */}
                   <button
                     onClick={() => toggleOptionsForTodoItem(index)}
@@ -228,6 +288,16 @@ function Modal({ isModalOpen }) {
               ))}
             </ul>
 
+            {/* 메모 아이콘 눌렀을 때 */}
+            {isOpenMemo && (
+              <MemoModal
+                isOpenMemo={isOpenMemo}
+                closeMemoModal={toggleMemoModal}
+                memo={todos[currentMemoIndex]?.memo || ""}
+                handleMemoSave={handleMemoSave}
+              />
+            )}
+
             {/* Add To-Do Form */}
             <form onSubmit={addTodo} className="mt-3">
               <input
@@ -235,7 +305,7 @@ function Modal({ isModalOpen }) {
                 value={input}
                 placeholder="New Todo"
                 onChange={(e) => setInput(e.target.value)}
-                className="block w-full overflow-hidden"
+                className="block w-full overflow-hidden pl-2"
               />
               <button type="submit" className="sr-only">
                 추가하기
