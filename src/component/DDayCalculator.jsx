@@ -50,10 +50,8 @@ function DDayCalculator({onClose}) {
   }
 
   const registerTask = async () => {
-    // const newTaskList ={ task, date, dDay };
-    // setTaskList(newTaskList);
-    // console.log(taskList);
-    pb.collection('ddays').create({
+
+    await pb.collection('ddays').create({
       userId : pb.authStore.model.id,
       date : dDay,
       final : date,
