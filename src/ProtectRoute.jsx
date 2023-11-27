@@ -11,6 +11,7 @@ function ProtectRoute({ children }) {
 	const { storageData } = useStorage("pocketbase_auth");
 	const [isLoading, setIsLoading] = useState(true);
 	console.log(storageData);
+	console.log(storageData.model)
 	useEffect(() => {
 		const checkAuthState = async () => {
 			try {
