@@ -1,5 +1,6 @@
 import  { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import pb from '@/api/pocketbase';
 
 function DDayCalculator({onClose}) {
   const [date, setDate] = useState('');
@@ -7,13 +8,19 @@ function DDayCalculator({onClose}) {
   const [dDay, setDDay] = useState('');
   const [today, setToday] = useState('');
   const [taskList, setTaskList] = useState([]);  // 할 일 저장할 usestate
+  const getDdata = async ()=>{
+    const td = await pb.collection('ddays').getFullList({
+      sort : 'updated',
+      filter : `userId = "${pb.authStore.model?.id}"`
+    })
+    setTaskList(td);
+    return td;
+  }
 
   useEffect(() => {
-    const savedTaskList = localStorage.getItem('taskList');
-    if (savedTaskList) {
-      setTaskList(JSON.parse(savedTaskList));
-    }
-
+    
+    
+    getDdata();
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -22,17 +29,6 @@ function DDayCalculator({onClose}) {
     setToday(today);
   }, []);
 
-  useEffect(() => {
-    const handleUnload = () => {
-      localStorage.removeItem('taskList');
-    };
-
-    window.addEventListener('unload', handleUnload);
-
-    return () => {
-      window.removeEventListener('unload', handleUnload);
-    };
-  }, []);
 
   const handleDateChange = (e) => {
     setDate(e.target.value);
@@ -48,10 +44,22 @@ function DDayCalculator({onClose}) {
     setTask(e.target.value);
   };
 
-  const registerTask = () => {
-    const newTaskList = [...taskList, { task, date, dDay }];
-    setTaskList(newTaskList);
-    localStorage.setItem('taskList', JSON.stringify(newTaskList));
+  const deleteData = async (id) =>{
+    await pb.collection('ddays').delete(id);
+    getDdata();
+  }
+
+  const registerTask = async () => {
+    // const newTaskList ={ task, date, dDay };
+    // setTaskList(newTaskList);
+    // console.log(taskList);
+    pb.collection('ddays').create({
+      userId : pb.authStore.model.id,
+      date : dDay,
+      final : date,
+      todo : task,
+    })
+    getDdata();
     setTask('');
     setDate('');
     setDDay('');
@@ -73,10 +81,13 @@ function DDayCalculator({onClose}) {
       {taskList.map((item, index) => (
         <div className='border rounded-lg bg-white mt-2' key={index}>
           <div className='flex justify-between px-3 pt-1 border-b border-black'>
-            <p>{item.date}</p>
-            <p>D-day: {item.dDay}</p>
+            {/* <p>{item.final}</p> */}
+            <p>D-day: {item.date}</p>
+            <button
+            onClick={()=> deleteData(item.id)}
+            >삭제</button>
           </div>
-          <p>{item.task}</p>
+          <p>{item.todo}</p>
         </div>
       ))}
     </div>

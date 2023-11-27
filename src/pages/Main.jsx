@@ -24,6 +24,7 @@ function Main() {
 			</Helmet>
 
       <div
+        className="relative"
         style={{
           backgroundImage: `url(${bg})`,
           backgroundSize: "cover",
