@@ -8,13 +8,13 @@ function ToDo() {
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   return (
-    <>
+    <div className='mx-10 my-5'>
       {/* The same button is now used to open and close the modal. */}
       <button onClick={toggleModal}>ToDo</button>
 
       {/* Modal Component */}
       <Modal isModalOpen={isModalOpen} />
-    </>
+    </div>
   );
 }
 

@@ -1,66 +1,173 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect } from "react";
 import OutsideClickHandler from "react-outside-click-handler";
-import Down from "../assets/arrow/down.svg";
-import Click from "../assets/arrow/click.svg";
-import Focus from "../assets/arrow/focus.svg";
+import Memo from "../assets/memo.svg";
+import MemoModal from "./MemoModal";
+import useTodo from "@/store/todoStore";
+import useTodoMemo from "@/store/memoStore";
+import useStorage from "@/hooks/useStorage";
+import pb from "@/api/pocketbase";
+import useUser from "@/store/userStore";
 
 function Modal({ isModalOpen }) {
-  const [todos, setTodos] = useState([]);
-  const [input, setInput] = useState("");
-  const [showOptionsIndex, setShowOptionsIndex] = useState(null);
-  const [editInput, setEditInput] = useState("");
-  const [showEditFieldIndex, setShowEditFieldIndex] = useState(null);
+  const {
+    todos,
+    input,
+    showOptionsIndex,
+    showEditFieldIndex,
+    editInput,
+    setTodos,
+    setInput,
+    setShowOptionsIndex,
+    setShowEditFieldIndex,
+    setEditInput,
+  } = useTodo();
 
-  const [isHovered, setIsHovered] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
+  //메모 모달 다이얼로그 상태
+  const { isOpenMemo, currentMemoIndex, setIsOpenMemo, setCurrentMemoIndex } =
+    useTodoMemo();
 
-  const handleMouseEnter = () => {
-    if (!isPressed) {
-      setIsHovered(true);
+  //유저
+  const { userData, setUserData } = useUser();
+  // const [isOpenMemo, setIsOpenMemo] = useState(false);
+  // const [currentMemoIndex, setCurrentMemoIndex] = useState(null); // 현재 메모를 작성하고 있는 Todo 항목의 인덱스
+
+  const { storageData } = useStorage("pocketbase_auth");
+  console.log(storageData.model.id);
+
+  const userInitData = {
+    username: storageData.model.username,
+    email: storageData.model.email,
+    emailVisibility: true,
+
+    name: storageData.model.name,
+    todo: [],
+    ledger: [],
+  };
+
+  //포켓베이스 데이터
+  const todoData = {
+    todo: "",
+    memo: "",
+    require: "",
+    userID: "",
+    check: false,
+  };
+
+  //포켓베이스 데이터 메소드
+  const handleTodoData = async (newTodo) => {
+    try {
+      todoData.userID = storageData.model.id;
+      todoData.todo = newTodo.text; // newTodo를 직접 사용
+      todoData.check = newTodo.completed; // newTodo를 직접 사용
+
+      const todoRes = await pb.collection("Todo").create(todoData);
+
+      console.log(todoRes);
+
+      const updatedUserData = {
+        ...userData,
+        todo: [...userData.todo, todoRes.id],
+      };
+
+      setUserData(updatedUserData);
+
+      pb.collection("users").update(storageData.model.id, updatedUserData);
+
+      console.log(updatedUserData);
+      console.log(todoRes);
+    } catch (error) {
+      console.log("오류", error.response);
     }
   };
-
-  const handleMouseLeave = () => {
-    if (!isPressed) {
-      setIsHovered(false);
-    }
+  //메모 메소드
+  const toggleMemoModal = (index) => {
+    setIsOpenMemo(!isOpenMemo);
+    setCurrentMemoIndex(index);
+    console.log(currentMemoIndex);
   };
 
-  const handleMouseDown = () => {
-    setIsPressed(true);
-    setIsHovered(false); // 마우스를 꾹 눌렀을 때 호버 효과 해제
+  const handleMemoSave = async (memoText) => {
+    setTodos(
+      todos.map((todo, i) =>
+        i === currentMemoIndex ? { ...todo, memo: memoText } : todo
+      )
+    );
+    setIsOpenMemo(false);
+
+    console.log(memoText);
+    console.log(currentMemoIndex);
+    console.log(todos);
+    todoData.userID = storageData.model.id;
+    todoData.todo = todos[currentMemoIndex].text;
+    todoData.check = todos[currentMemoIndex].completed;
+    todoData.memo = memoText;
+
+    const record = await pb
+      .collection("Todo")
+      .update(userData.todo[currentMemoIndex], todoData);
+    console.log(record);
   };
 
-  const handleMouseUp = () => {
-    setIsPressed(false);
-    if (isHovered) {
-      setIsHovered(true); // 마우스 업 후 다시 호버 상태로 변경
-    }
-  };
-
-  const addTodo = (e) => {
+  const addTodo = async (e) => {
     e.preventDefault();
 
-    setTodos([...todos, { text: input, completed: false }]);
+    const newTodo = { text: input, completed: false, memo: "" };
+
+    setTodos([...todos, newTodo]);
     setInput("");
+
+    // addTodo가 실행되면 handleTodoData도 실행되도록 함
+    await handleTodoData(newTodo);
   };
 
-  const toggleComplete = (index) => {
+  const toggleComplete = async (index) => {
     setTodos(
       todos.map((todo, i) =>
         i === index ? { ...todo, completed: !todo.completed } : todo
       )
     );
+
+    // setTodocheck(todos[index]);
+
+    todoData.userID = storageData.model.id;
+    todoData.todo = todos[index].text; // newTodo를 직접 사용
+    todoData.check = !todos[index].completed; // newTodo를 직접 사용
+    todoData.memo = todos[index].memo;
+    // console.log(userData.todo[index])
+    // console.log(todoCheck);
+    // console.log(!(todos[index].completed));
+
+    // console.log(todoCh);
+    const record = await pb
+      .collection("Todo")
+      .update(userData.todo[index], todoData);
+    console.log(record);
+    // console.log();
   };
 
-  const deleteTodo = (index) => {
+  const deleteTodo = async (index) => {
+    // setTodos(todos.filter((_, i) => i !== index));
+    // setShowOptionsIndex(null); // Also hide options if open
+
+    // console.log(index)
+    // await pb.collection("Todo").delete(userData.todo[index]);
+
     setTodos(todos.filter((_, i) => i !== index));
     setShowOptionsIndex(null); // Also hide options if open
+
+    // userData.todo에서 특정 인덱스의 값을 제거
+    const updatedUserData = {
+      ...userData,
+      todo: userData.todo.filter((_, i) => i !== index),
+    };
+
+    setUserData(updatedUserData);
+    await pb.collection("Todo").delete(userData.todo[index]);
   };
 
   // New function to handle editing a todo
-  const editTodo = (index) => {
+  const editTodo = async (index) => {
     if (editInput.trim() === "") return; // Don't allow empty todos
 
     setTodos(
@@ -70,6 +177,18 @@ function Modal({ isModalOpen }) {
     );
 
     setShowOptionsIndex(null); // Hide options after editing
+
+    todoData.userID = storageData.model.id;
+    todoData.todo = editInput; // newTodo를 직접 사용
+    todoData.check = todos[index].completed; // newTodo를 직접 사용
+    todoData.memo = todos[index].memo;
+
+    console.log(editInput);
+
+    const record = await pb
+      .collection("Todo")
+      .update(userData.todo[index], todoData);
+    console.log(record);
   };
 
   // Function to show the options for a specific todo item or hide them if already visible
@@ -79,6 +198,25 @@ function Modal({ isModalOpen }) {
       setEditInput(todos[index].text);
     }
   };
+
+
+  useEffect(() => {
+    const storedTodos = window.localStorage.getItem("todos");
+
+    if (storedTodos) {
+      setTodos(JSON.parse(storedTodos));
+    } else {
+      setTodos([]);
+      window.localStorage.setItem("todos", JSON.stringify([]));
+    }
+
+    setUserData(userInitData);
+  }, []);
+
+  useEffect(() => {
+    // todos가 변경될 때마다, 그것을 로컬 스토리지에 저장합니다.
+    window.localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   return (
     <AnimatePresence>
@@ -90,26 +228,7 @@ function Modal({ isModalOpen }) {
           className="w-80"
         >
           <div className="flex flex-col bg-gray-200 p-3 rounded-lg">
-            <div className="flex">
-              <span className="mb-3">할 일 목록</span>
-              <div
-                className={`ml-1 ${isPressed ? "pressed" : ""}`}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}
-              >
-                {isPressed ? (
-                  <img src={Click} alt="마우스를 눌렀을 때 보이는 체크 아이콘" />
-                ) : isHovered ? (
-                  <img src={Focus} alt="마우스를 올렸을 때 보이는 체크 아이콘" />
-                ) : (
-                  <img src={Down} alt="체크 아이콘"
-                  className="relative top-1 left-1" />
-                )}
-              </div>
-
-            </div>
+            <span className="mb-3">할 일 목록</span>
 
             {/* To-Do List */}
             <ul className="relative">
@@ -132,7 +251,13 @@ function Modal({ isModalOpen }) {
                   {/* Todo Text */}
 
                   {showEditFieldIndex !== index ? (
-                    <span className="w-full">{todo.text}</span>
+                    <span
+                      className={`w-full ${
+                        todo.completed ? "line-through" : ""
+                      }`}
+                    >
+                      {todo.text}
+                    </span>
                   ) : (
                     <div className="w-full">
                       <OutsideClickHandler
@@ -158,6 +283,15 @@ function Modal({ isModalOpen }) {
                       </OutsideClickHandler>
                     </div>
                   )}
+
+                  <div>
+                    <button
+                      className="mr-1"
+                      onClick={() => toggleMemoModal(index)}
+                    >
+                      <img src={Memo} alt="메모 이미지 아이콘" />
+                    </button>
+                  </div>
 
                   {/* Options Button */}
                   <button
@@ -212,6 +346,16 @@ function Modal({ isModalOpen }) {
               ))}
             </ul>
 
+            {/* 메모 아이콘 눌렀을 때 */}
+            {isOpenMemo && (
+              <MemoModal
+                isOpenMemo={isOpenMemo}
+                closeMemoModal={toggleMemoModal}
+                memo={todos[currentMemoIndex]?.memo || ""}
+                handleMemoSave={handleMemoSave}
+              />
+            )}
+
             {/* Add To-Do Form */}
             <form onSubmit={addTodo} className="mt-3">
               <input
@@ -219,7 +363,7 @@ function Modal({ isModalOpen }) {
                 value={input}
                 placeholder="New Todo"
                 onChange={(e) => setInput(e.target.value)}
-                className="block w-full overflow-hidden"
+                className="block w-full overflow-hidden pl-2"
               />
               <button type="submit" className="sr-only">
                 추가하기
