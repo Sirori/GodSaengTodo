@@ -3,14 +3,14 @@ import pb from "@/api/pocketbase";
 import debounce from "@/utils/debounce";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import useAuth from "@/store/authStore";
+
 
 function SignIn() {
 	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const passwordReg = /^[a-zA-Z0-9]{8,16}$/;
 	const { state } = useLocation();
 	const navigate = useNavigate();
-	const {userID,setUserID}=useAuth()
+	
 	const [formState, setFormState] = useState({
 		email: "",
 		password: "",
@@ -30,8 +30,8 @@ function SignIn() {
 				.collection("users")
 				.authWithPassword(email, password);
 
-			console.log(response);
-			console.log(response.model.id)
+			// console.log(response);
+			// console.log(response.model.id)
 
 			if (!state) {
 				navigate("/main");

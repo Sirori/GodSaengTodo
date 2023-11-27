@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const todoStore = (set) => ({
   todos: [],
@@ -16,6 +17,11 @@ const todoStore = (set) => ({
   setTodocheck: (todoCheck) => set({ todoCheck }),
 });
 
-const useTodo = create(todoStore);
+const useTodo = create(
+  persist(todoStore, {
+    name: "todos", // 로컬 스토리지의 키 이름
+    // getStorage: () => localStorage, // 로컬 스토리지를 사용하도록 설정
+  })
+);
 
 export default useTodo;

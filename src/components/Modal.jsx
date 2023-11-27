@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import OutsideClickHandler from "react-outside-click-handler";
 import Memo from "../assets/memo.svg";
 import MemoModal from "./MemoModal";
@@ -16,13 +16,11 @@ function Modal({ isModalOpen }) {
     showOptionsIndex,
     showEditFieldIndex,
     editInput,
-    todoCheck,
     setTodos,
     setInput,
     setShowOptionsIndex,
     setShowEditFieldIndex,
     setEditInput,
-    setTodocheck,
   } = useTodo();
 
   //메모 모달 다이얼로그 상태
@@ -41,8 +39,7 @@ function Modal({ isModalOpen }) {
     username: storageData.model.username,
     email: storageData.model.email,
     emailVisibility: true,
-    // "password": storageData.model,
-    // "passwordConfirm": "12345678",
+
     name: storageData.model.name,
     todo: [],
     ledger: [],
@@ -59,20 +56,6 @@ function Modal({ isModalOpen }) {
 
   //포켓베이스 데이터 메소드
   const handleTodoData = async (newTodo) => {
-    // e.preventDefault();
-
-    // PocketBase SDK 인증 요청
-    // try {
-    //   todoData.userID = storageData.model.id;
-    //   todoData.todo = todos.text;
-    //   todoData.check = todoCheck;
-
-    //   console.log(todoData);
-    //   await pb.collection("Todo").create(todoData);
-    //   // authSignUp(formData);
-    // } catch (error) {
-    //   console.log("오류", error.response);
-    // }
     try {
       todoData.userID = storageData.model.id;
       todoData.todo = newTodo.text; // newTodo를 직접 사용
@@ -80,15 +63,7 @@ function Modal({ isModalOpen }) {
 
       const todoRes = await pb.collection("Todo").create(todoData);
 
-      // userData.username = storageData.model.username;
-      // userData.email = storageData.model.email;
-      // userData.name = storageData.model.name;
-      userData.todo.push(todoRes.id);
-
-      // setUserData((userData) => ({
-      //   ...userData,
-      //   todo: [...userData.todo, todoRes.id],
-      // }));
+      console.log(todoRes);
 
       const updatedUserData = {
         ...userData,
@@ -99,14 +74,8 @@ function Modal({ isModalOpen }) {
 
       pb.collection("users").update(storageData.model.id, updatedUserData);
 
-      // setUserData(updatedUserData);
-
       console.log(updatedUserData);
       console.log(todoRes);
-
-      // return updatedUserData;
-
-      // await pb.collection("users").update(storageData.model.id, userData);
     } catch (error) {
       console.log("오류", error.response);
     }
@@ -118,20 +87,30 @@ function Modal({ isModalOpen }) {
     console.log(currentMemoIndex);
   };
 
-  const handleMemoSave = (memoText) => {
+  const handleMemoSave = async (memoText) => {
     setTodos(
       todos.map((todo, i) =>
         i === currentMemoIndex ? { ...todo, memo: memoText } : todo
       )
     );
     setIsOpenMemo(false);
+
+    console.log(memoText);
+    console.log(currentMemoIndex);
+    console.log(todos);
+    todoData.userID = storageData.model.id;
+    todoData.todo = todos[currentMemoIndex].text;
+    todoData.check = todos[currentMemoIndex].completed;
+    todoData.memo = memoText;
+
+    const record = await pb
+      .collection("Todo")
+      .update(userData.todo[currentMemoIndex], todoData);
+    console.log(record);
   };
 
   const addTodo = async (e) => {
     e.preventDefault();
-
-    // setTodos([...todos, { text: input, completed: false, memo: "" }]);
-    // setInput("");
 
     const newTodo = { text: input, completed: false, memo: "" };
 
@@ -142,25 +121,53 @@ function Modal({ isModalOpen }) {
     await handleTodoData(newTodo);
   };
 
-  const toggleComplete = (index) => {
+  const toggleComplete = async (index) => {
     setTodos(
       todos.map((todo, i) =>
         i === index ? { ...todo, completed: !todo.completed } : todo
       )
     );
-    console.log(todoCheck);
-    console.log(todos);
-    setTodocheck(!todoCheck);
-    console.log(todoCheck);
+
+    // setTodocheck(todos[index]);
+
+    todoData.userID = storageData.model.id;
+    todoData.todo = todos[index].text; // newTodo를 직접 사용
+    todoData.check = !todos[index].completed; // newTodo를 직접 사용
+    todoData.memo = todos[index].memo;
+    // console.log(userData.todo[index])
+    // console.log(todoCheck);
+    // console.log(!(todos[index].completed));
+
+    // console.log(todoCh);
+    const record = await pb
+      .collection("Todo")
+      .update(userData.todo[index], todoData);
+    console.log(record);
+    // console.log();
   };
 
-  const deleteTodo = (index) => {
+  const deleteTodo = async (index) => {
+    // setTodos(todos.filter((_, i) => i !== index));
+    // setShowOptionsIndex(null); // Also hide options if open
+
+    // console.log(index)
+    // await pb.collection("Todo").delete(userData.todo[index]);
+
     setTodos(todos.filter((_, i) => i !== index));
     setShowOptionsIndex(null); // Also hide options if open
+
+    // userData.todo에서 특정 인덱스의 값을 제거
+    const updatedUserData = {
+      ...userData,
+      todo: userData.todo.filter((_, i) => i !== index),
+    };
+
+    setUserData(updatedUserData);
+    await pb.collection("Todo").delete(userData.todo[index]);
   };
 
   // New function to handle editing a todo
-  const editTodo = (index) => {
+  const editTodo = async (index) => {
     if (editInput.trim() === "") return; // Don't allow empty todos
 
     setTodos(
@@ -170,6 +177,18 @@ function Modal({ isModalOpen }) {
     );
 
     setShowOptionsIndex(null); // Hide options after editing
+
+    todoData.userID = storageData.model.id;
+    todoData.todo = editInput; // newTodo를 직접 사용
+    todoData.check = todos[index].completed; // newTodo를 직접 사용
+    todoData.memo = todos[index].memo;
+
+    console.log(editInput);
+
+    const record = await pb
+      .collection("Todo")
+      .update(userData.todo[index], todoData);
+    console.log(record);
   };
 
   // Function to show the options for a specific todo item or hide them if already visible
@@ -180,9 +199,24 @@ function Modal({ isModalOpen }) {
     }
   };
 
+
   useEffect(() => {
+    const storedTodos = window.localStorage.getItem("todos");
+
+    if (storedTodos) {
+      setTodos(JSON.parse(storedTodos));
+    } else {
+      setTodos([]);
+      window.localStorage.setItem("todos", JSON.stringify([]));
+    }
+
     setUserData(userInitData);
   }, []);
+
+  useEffect(() => {
+    // todos가 변경될 때마다, 그것을 로컬 스토리지에 저장합니다.
+    window.localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   return (
     <AnimatePresence>

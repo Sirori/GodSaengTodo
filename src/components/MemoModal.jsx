@@ -1,4 +1,3 @@
-import useMemo from "@/store/memoStore";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
@@ -6,8 +5,6 @@ function MemoModal({ isOpenMemo, closeMemoModal, memo, handleMemoSave }) {
   const [localMemo, setLocalMemo] = useState(memo); // 로컬 상태를 추가합니다.
   // const {localMemo,setLocalMemo}=useMemo()
 
- 
-  
   useEffect(() => {
     setLocalMemo(memo);
   }, [memo]);
@@ -38,20 +35,6 @@ function MemoModal({ isOpenMemo, closeMemoModal, memo, handleMemoSave }) {
         </button>
       </div>
 
-      {/* <div className="bg-white p-4 rounded-lg">
-        <h2 className="mb-4">Todo Memo</h2>
-        <textarea
-          placeholder="메모를 작성해주세요."
-          className="w-full p-2 pb-14 mb-4 border rounded-lg"
-          value={memo}
-          onChange={(e) => handleMemoSave(e.target.value)}
-          onClick={(e) => e.stopPropagation()}
-        ></textarea>
-        <button onClick={handleMemoSave} className="p-2 bg-blue-500 text-white rounded-lg">저장</button>
-        <button onClick={closeMemoModal} className="mb-4">
-          닫기
-        </button>
-      </div> */}
     </motion.div>
   );
 }
